@@ -9,7 +9,7 @@ data Pose = Pose {dir :: Direction, xPos :: Int, yPos :: Int} deriving (Show, Re
 
 main = print
         $ shortestDistance
-        $ foldr combine (Pose N 0 0)
+        $ foldl combine (Pose N 0 0)
         $ map parse
         $ splitOn ", "
         $ input
@@ -20,8 +20,8 @@ parse s = Action turn distance
     turn = read $ [head s]
     distance = read $ tail s
 
-combine :: Action -> Pose -> Pose
-combine (Action t d) p = move d $ rotate p t
+combine :: Pose -> Action -> Pose
+combine p (Action t d) = move d $ rotate p t
 
 rotate :: Pose -> Turn -> Pose
 rotate (Pose d x y) t = Pose (rotateDir d t) x y
