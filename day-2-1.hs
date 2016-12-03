@@ -1,6 +1,6 @@
 
 main = do
-        input <- readFile "day-2.test.data"
+        input <- readFile "day-2.data"
         print $ process input
 
 data Instruction = L | R | U | D | P deriving (Show, Read)
