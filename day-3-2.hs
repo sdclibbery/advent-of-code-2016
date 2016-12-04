@@ -3,20 +3,21 @@ import Data.Char
 
 --main = print $ countImpossibleTriangles "5  10 25"
 main = do
-        input <- readFile "day-3-1.test.data"
+        input <- readFile "day-3-1.data"
         print $ countImpossibleTriangles input
 
 countImpossibleTriangles = length
                             . filter validTri
-                            . rowsToTriangles
-                            . map parseRows
+                            . columnsToTriangles
+                            . concat
+                            . foldl addToColumns [[], [], []]
                             . lines
 
-type Row = (Int,Int,Int)
+type Columns = [[Int]]
 type Triangle = (Int,Int,Int)
 
-parseRows :: String -> Row
-parseRows s = (sides!!0, sides!!1, sides!!2)
+addToColumns :: Columns -> String -> Columns
+addToColumns [c0, c1, c2] s = [sides!!0 : c0, sides!!1 : c1, sides!!2 : c2]
   where
     sides = foldl parseChar [0] s
 
@@ -25,7 +26,9 @@ parseChar (i:is) c = if isDigit c
                       then ((i*10 + (digitToInt c)):is)
                       else (if i == 0 then (i:is) else (0:i:is))
 
-rowsToTriangles :: [Rows] -> [Triangles]
+columnsToTriangles :: [Int] -> [Triangle]
+columnsToTriangles [] = []
+columnsToTriangles (s1:s2:s3:ss) = (s1,s2,s3) : (columnsToTriangles ss)
 
 validTri :: Triangle -> Bool
 validTri (a,b,c) = (a+b > c) && (b+c > a) && (a+c > b)
