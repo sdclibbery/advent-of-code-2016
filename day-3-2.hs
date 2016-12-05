@@ -8,7 +8,7 @@ main = do
 
 countImpossibleTriangles = length
                             . filter validTri
-                            . columnsToTriangles
+                            . columnToTriangles
                             . concat
                             . foldl addToColumns [[], [], []]
                             . lines
@@ -26,9 +26,9 @@ parseChar (i:is) c = if isDigit c
                       then ((i*10 + (digitToInt c)):is)
                       else (if i == 0 then (i:is) else (0:i:is))
 
-columnsToTriangles :: [Int] -> [Triangle]
-columnsToTriangles [] = []
-columnsToTriangles (s1:s2:s3:ss) = (s1,s2,s3) : (columnsToTriangles ss)
+columnToTriangles :: [Int] -> [Triangle]
+columnToTriangles [] = []
+columnToTriangles (s1:s2:s3:ss) = (s1,s2,s3) : (columnToTriangles ss)
 
 validTri :: Triangle -> Bool
 validTri (a,b,c) = (a+b > c) && (b+c > a) && (a+c > b)
