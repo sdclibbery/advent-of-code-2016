@@ -3,6 +3,7 @@
 
 #define charsPerLine 8
 static const size_t bufLen = 1024;
+typedef enum { StateRead, StateCount, StateFindBest } State;
 
 void main (void) {
   char buf[bufLen];
@@ -13,14 +14,21 @@ void main (void) {
   int c, a;
   char best;
   int bestCount;
+  State state = StateRead;
+  int done = 0;
 
-_readLine:
-  line = fgets(buf, bufLen, pf);
-  if (line) {
-    line[charsPerLine] = '\0';
-    for (c = 0; c < charsPerLine; c++) { counts[line[c]][c]++; } // I'm assuming small, in-place loops are allowed..?
-    goto _readLine; // The only allowed jump back for me; see http://number-none.com/blow/john_carmack_on_inlined_code.html
-  }
+  do {
+    if (state == StateRead) {
+      line = fgets(buf, bufLen, pf);
+      if (line == NULL) { done = 1; }
+      c = 0;
+      state = StateCount;
+    } else if (state == StateCount) {
+      counts[line[c]][c]++;
+      c++;
+      if (c >= charsPerLine) { state = StateRead; }
+    }
+  } while (!done); // The only allowed jump back for me; see http://number-none.com/blow/john_carmack_on_inlined_code.html
 
   for (c = 0; c < charsPerLine; c++) {
     best = '\0';
@@ -34,5 +42,6 @@ _readLine:
     putchar(best);
   }
   puts("\n");
+
   fclose(pf);
 }
