@@ -32,9 +32,9 @@ void main (void) {
 
   for (c = 0; c < charsPerLine; c++) {
     best = '\0';
-    bestCount = 0;
+    bestCount = 1000000;
     for (a = 'a'; a <= 'z'; a++) {
-      if (counts[a][c] > bestCount) {
+      if (counts[a][c] < bestCount) {
         best = a;
         bestCount = counts[a][c];
       }
