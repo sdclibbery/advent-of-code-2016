@@ -2,15 +2,18 @@ import Text.Parsec
 import Text.Parsec.Char
 
 main = do
-        input <- readFile "day-7.test.data"
---        print $ (length.getTLS) input
-        print $ getTLS input
+        input <- readFile "day-7.data"
+        print $ (length.getTLS) input
+--        print $ getTLS input
 
 type Normal = String
 type Hypernet = String
 data Component = Normal String | Hypernet String deriving (Show)
+data TlsStatus = MightHaveTls | DontKnow | DefinitelyDoesntHaveTls deriving (Show)
 
-getTLS = map (map (hasAbba.getText))
+getTLS = filter isTls
+          .map (foldl combineTlsStatus DontKnow)
+          .map (map checkTls)
           .map parseIP
           .lines
 
@@ -26,11 +29,22 @@ iPparser = many (normalParser <|> hypernetParser)
     hypernetParser = Hypernet <$> ((char '[') *> text <* (char ']'))
     text = many1 $ noneOf "[]"
 
-getText (Normal s) = s
-getText (Hypernet s) = s
+checkTls :: Component -> TlsStatus
+checkTls (Normal s) | (hasAbba s) = MightHaveTls
+checkTls (Hypernet s) | (hasAbba s) = DefinitelyDoesntHaveTls
+checkTls _ = DontKnow
 
 hasAbba :: String -> Bool
 hasAbba (a:b:c:d:cs)
   | (b==c && a==d && a /=b) = True
   | otherwise = hasAbba (b:c:d:cs)
 hasAbba _ = False
+
+combineTlsStatus DefinitelyDoesntHaveTls _ = DefinitelyDoesntHaveTls
+combineTlsStatus _ DefinitelyDoesntHaveTls = DefinitelyDoesntHaveTls
+combineTlsStatus MightHaveTls _ = MightHaveTls
+combineTlsStatus _ MightHaveTls = MightHaveTls
+combineTlsStatus _ _ = DontKnow
+
+isTls MightHaveTls = True
+isTls _ = False
