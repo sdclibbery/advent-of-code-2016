@@ -10,7 +10,8 @@ type Normal = String
 type Hypernet = String
 data Component = Normal String | Hypernet String deriving (Show)
 
-getTLS = map parseIP
+getTLS = map (map (hasAbba.getText))
+          .map parseIP
           .lines
 
 parseIP :: String -> [Component]
@@ -24,3 +25,12 @@ iPparser = many (normalParser <|> hypernetParser)
     normalParser = Normal <$> text
     hypernetParser = Hypernet <$> ((char '[') *> text <* (char ']'))
     text = many1 $ noneOf "[]"
+
+getText (Normal s) = s
+getText (Hypernet s) = s
+
+hasAbba :: String -> Bool
+hasAbba (a:b:c:d:cs)
+  | (b==c && a==d && a /=b) = True
+  | otherwise = hasAbba (b:c:d:cs)
+hasAbba _ = False
